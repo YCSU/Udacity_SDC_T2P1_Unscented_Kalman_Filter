@@ -20,9 +20,11 @@ UKF::UKF() {
 
   // initial state vector
   x_ = VectorXd(5);
+  n_x_ = x.szie();
+  n_aug_ = n_x_ + 2;
 
   // initial covariance matrix
-  P_ = MatrixXd(5, 5);
+  P_ = MatrixXd::Identity(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
   std_a_ = 30;
@@ -52,6 +54,11 @@ UKF::UKF() {
 
   Hint: one or more values initialized above might be wildly off...
   */
+  Xsig_pred_ = MatrixXd(n_x_, 2*n_aug_+1);
+  weigths = VectorXd(2*n_aug_+1);
+
+
+
 }
 
 UKF::~UKF() {}
