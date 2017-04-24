@@ -109,7 +109,7 @@ public:
    */
   void UpdateRadar(MeasurementPackage meas_package);
 
-  void AugmentedSigmaPoints();
+  MatrixXd AugmentedSigmaPoints();
   void SigmaPointPrediction();
 };
 
