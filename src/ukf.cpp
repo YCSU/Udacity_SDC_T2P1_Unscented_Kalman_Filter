@@ -152,14 +152,37 @@ void UKF::Prediction(double delta_t) {
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateLidar(MeasurementPackage meas_package) {
-  /**
-  TODO:
+  int n_z = 2;
 
-  Complete this function! Use lidar data to update the belief about the object's
-  position. Modify the state vector, x_, and covariance, P_.
+  //create matrix for sigma points in measurement space
+  MatrixXd Zsig = MatrixXd(n_z, 2 * n_aug_ + 1);
 
-  You'll also need to calculate the lidar NIS.
-  */
+  //mean predicted measurement
+  VectorXd z_pred = VectorXd(n_z);
+  
+  //measurement covariance matrix S
+  MatrixXd S = MatrixXd(n_z,n_z);
+
+  //transform sigma points into measurement space
+  for( int i = 0; i < 2*n_aug_+1; ++i){
+      double px = Xsig_pred_(0, i);
+      double py = Xsig_pred_(1, i);
+      Zsig(0, i) = px;
+      Zsig(1, i) = py;
+  }
+  //calculate mean predicted measurement
+  for(int i = 0; i < 2*n_aug_ + 1; ++i){
+      z_pred += weights_(i)*Zsig.col(i);
+  }
+  //calculate measurement covariance matrix S
+  for(int i = 0; i <2*n_aug_ + 1; ++i){
+      S += weights_(i)*(Zsig.col(i)-z_pred)*(Zsig.col(i)-z_pred).transpose();
+  }
+  S(0, 0) += std_radr_*std_radr_;
+  S(1, 1) += std_radphi_*std_radphi_;
+  S(2, 2) += std_radrd_*std_radrd_;
+
+  UKFUpdate(n_z, meas_package.raw_measurements_, z_pred, Zsig, S);
 }
 
 /**
@@ -175,7 +198,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
   //mean predicted measurement
   VectorXd z_pred = VectorXd(n_z);
-  
+
   //measurement covariance matrix S
   MatrixXd S = MatrixXd(n_z,n_z);
 
@@ -199,7 +222,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   for(int i = 0; i <2*n_aug_ + 1; ++i){
       S += weights_(i)*(Zsig.col(i)-z_pred)*(Zsig.col(i)-z_pred).transpose();
   }
-  S(0, 0) += std_radr_*std_radr_; 
+  S(0, 0) += std_radr_*std_radr_;
   S(1, 1) += std_radphi_*std_radphi_;
   S(2, 2) += std_radrd_*std_radrd_;
 
