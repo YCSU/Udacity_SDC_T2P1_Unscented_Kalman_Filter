@@ -111,6 +111,7 @@ public:
 
   MatrixXd AugmentedSigmaPoints();
   void SigmaPointPrediction();
+  void UKFUpdate(const int& n_z, const VectorXd& z, const VectorXd& z_pred, const MatrixXd& Zsig, const MatrixXd& S);
 };
 
 #endif /* UKF_H */

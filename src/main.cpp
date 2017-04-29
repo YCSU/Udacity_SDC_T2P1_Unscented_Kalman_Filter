@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
   size_t number_of_measurements = measurement_pack_list.size();
 
   // column names for output file
-  out_file_ << "time_stamp" << "\t";  
+  out_file_ << "time_stamp" << "\t";
   out_file_ << "px_state" << "\t";
   out_file_ << "py_state" << "\t";
   out_file_ << "v_state" << "\t";
