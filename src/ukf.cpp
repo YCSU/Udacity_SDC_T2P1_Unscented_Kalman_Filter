@@ -12,6 +12,9 @@ using std::vector;
  * Initializes Unscented Kalman filter
  */
 UKF::UKF() {
+  is_initialized_ = false;
+  previous_timestamp_ = 0;
+
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
 
@@ -75,12 +78,48 @@ UKF::~UKF() {}
  * either radar or laser.
  */
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
-  /**
-  TODO:
+  /*****************************************************************************
+   *  Initialization
+   ****************************************************************************/
+  if (!is_initialized_) {
+    // first measurement
+    if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+      float ro = meas_package.raw_measurements_(0);
+      float phi = meas_package.raw_measurements_(1);
+      float rho_dot = meas_package.raw_measurements_(2);
+      x_ << ro * cos(phi), ro * sin(phi), 0, 0, 0; 
+    }
+    else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+      x_ << meas_package.raw_measurements_(0), meas_package.raw_measurements_(1), 0, 0, 0;
+    }
+    previous_timestamp_ = meas_package.timestamp_;
+    // done initializing, no need to predict or update
+    is_initialized_ = true;
+    return;
+  }
 
-  Complete this function! Make sure you switch between lidar and radar
-  measurements.
-  */
+  
+  /*****************************************************************************
+   *  Prediction
+   ****************************************************************************/
+  
+  //compute the time elapsed between the current and previous measurements
+  delta_t = (meas_package.timestamp_ - previous_timestamp_) / 1000000.0; //dt - expressed in seconds
+  previous_timestamp_ = meas_package.timestamp_;
+
+  Prediction(delta_t);
+  
+  /*****************************************************************************
+   *  Update
+   ****************************************************************************/
+  
+  if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+    // Radar updates
+    UpdateRadar(meas_package);
+  } else {
+    // Laser updates
+    UpdateLidar(meas_package);
+  }
 }
 
 /**
@@ -208,7 +247,6 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
       double py = Xsig_pred_(1, i);
       double v = Xsig_pred_(2, i);
       double phi = Xsig_pred_(3, i);
-      double phi_dot = Xsig_pred_(4, i);
       double ro = sqrt(px*px + py*py);
       Zsig(0, i) = ro;
       Zsig(1, i) = atan2(py, px);
