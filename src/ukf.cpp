@@ -217,9 +217,8 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   for(int i = 0; i <2*n_aug_ + 1; ++i){
       S += weights_(i)*(Zsig.col(i)-z_pred)*(Zsig.col(i)-z_pred).transpose();
   }
-  S(0, 0) += std_radr_*std_radr_;
-  S(1, 1) += std_radphi_*std_radphi_;
-  S(2, 2) += std_radrd_*std_radrd_;
+  S(0, 0) += std_laspx_*std_laspx_;
+  S(1, 1) += std_laspy_*std_laspy_;
 
   UKFUpdate(n_z, meas_package.raw_measurements_, z_pred, Zsig, S);
 }
