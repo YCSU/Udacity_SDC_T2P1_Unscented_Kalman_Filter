@@ -290,9 +290,15 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
       double v = Xsig_pred_(2, i);
       double phi = Xsig_pred_(3, i);
       double ro = sqrt(px*px + py*py);
-      Zsig(0, i) = ro;
-      Zsig(1, i) = atan2(py, px);
-      Zsig(2, i) = (px*v*cos(phi) + py*v*sin(phi)) / ro;
+      if(ro < 0.0001){
+        Zsig(0, i) = 0;
+        Zsig(1, i) = 0;
+        Zsig(2, i) = 0;
+      } else{
+        Zsig(0, i) = ro;
+        Zsig(1, i) = atan2(py, px);
+        Zsig(2, i) = (px*v*cos(phi) + py*v*sin(phi)) / ro;
+      }
   }
   //calculate mean predicted measurement
   z_pred.fill(0);
