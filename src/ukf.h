@@ -33,8 +33,7 @@ public:
   MatrixXd Xsig_pred_;
 
   ///* time when the state is true, in us
-  long long time_us_;
-  long previous_timestamp_;
+  long long previous_timestamp_;
   double delta_t;
 
   ///* Process noise standard deviation longitudinal acceleration in m/s^2
